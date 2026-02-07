@@ -441,9 +441,10 @@ class SafeNest(
 
         lastRequestId = response.headers["x-request-id"]
 
-        val limit = response.headers["x-usage-limit"]?.toIntOrNull()
-        val used = response.headers["x-usage-used"]?.toIntOrNull()
-        val remaining = response.headers["x-usage-remaining"]?.toIntOrNull()
+        // Monthly usage headers
+        val limit = response.headers["x-monthly-limit"]?.toIntOrNull()
+        val used = response.headers["x-monthly-used"]?.toIntOrNull()
+        val remaining = response.headers["x-monthly-remaining"]?.toIntOrNull()
 
         if (limit != null && used != null && remaining != null) {
             usage = Usage(limit, used, remaining)
