@@ -401,15 +401,41 @@ class SafeNest(
     }
 
     // =========================================================================
+    // Account Management (GDPR)
+    // =========================================================================
+
+    /**
+     * Delete all account data (GDPR Article 17 — Right to Erasure).
+     */
+    suspend fun deleteAccountData(): AccountDeletionResult {
+        return request("DELETE", "/api/v1/account/data")
+    }
+
+    /**
+     * Export all account data as JSON (GDPR Article 20 — Right to Data Portability).
+     */
+    suspend fun exportAccountData(): AccountExportResult {
+        return request("GET", "/api/v1/account/export")
+    }
+
+    // =========================================================================
     // Private Methods
     // =========================================================================
 
     private suspend inline fun <reified T> request(path: String, body: JsonObject): T {
+        return requestWithMethod("POST", path, body)
+    }
+
+    private suspend inline fun <reified T> request(method: String, path: String): T {
+        return requestWithMethod(method, path, null)
+    }
+
+    private suspend inline fun <reified T> requestWithMethod(method: String, path: String, body: JsonObject?): T {
         var lastException: Exception? = null
 
         for (attempt in 0 until maxRetries) {
             try {
-                return performRequest(path, body)
+                return performRequest(method, path, body)
             } catch (e: AuthenticationException) {
                 throw e
             } catch (e: ValidationException) {
@@ -427,11 +453,12 @@ class SafeNest(
         throw lastException ?: SafeNestException("Request failed after retries")
     }
 
-    private suspend inline fun <reified T> performRequest(path: String, body: JsonObject): T {
+    private suspend inline fun <reified T> performRequest(method: String, path: String, body: JsonObject?): T {
         val response: HttpResponse
         try {
-            response = client.post("$baseUrl$path") {
-                setBody(body)
+            response = client.request("$baseUrl$path") {
+                this.method = HttpMethod.parse(method)
+                if (body != null) setBody(body)
             }
         } catch (e: HttpRequestTimeoutException) {
             throw TimeoutException("Request timed out after ${timeout}ms")

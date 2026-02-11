@@ -236,6 +236,29 @@ data class ReportResult(
     val metadata: JsonObject? = null
 )
 
+// =============================================================================
+// Account Management (GDPR)
+// =============================================================================
+
+/**
+ * Result of account data deletion (GDPR Article 17).
+ */
+@Serializable
+data class AccountDeletionResult(
+    val message: String,
+    @SerialName("deleted_count") val deletedCount: Int
+)
+
+/**
+ * Result of account data export (GDPR Article 20).
+ */
+@Serializable
+data class AccountExportResult(
+    val userId: String,
+    val exportedAt: String,
+    val data: JsonObject
+)
+
 /**
  * API usage information.
  */
