@@ -81,6 +81,16 @@ class Tuteliq(
     }
 
     /**
+     * Create a voice streaming session over WebSocket.
+     */
+    fun voiceStream(
+        config: VoiceStreamConfig? = null,
+        handlers: VoiceStreamHandlers? = null
+    ): VoiceStreamSession {
+        return VoiceStreamSession(apiKey, config, handlers)
+    }
+
+    /**
      * Close the HTTP client.
      */
     fun close() {

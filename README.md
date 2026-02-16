@@ -205,6 +205,56 @@ println("Risk: ${report.riskLevel}")
 println("Next Steps: ${report.recommendedNextSteps}")
 ```
 
+### Voice Streaming
+
+Real-time voice analysis over WebSocket:
+
+```kotlin
+val session = client.voiceStream(
+    config = VoiceStreamConfig(
+        intervalSeconds = 10,
+        analysisTypes = listOf("bullying", "unsafe"),
+    ),
+    handlers = VoiceStreamHandlers(
+        onReady = { println("Session ready: ${it.sessionId}") },
+        onTranscription = { println("Text: ${it.text}") },
+        onAlert = { println("Alert: ${it.category} (${it.severity})") },
+        onSessionSummary = { println("Summary: risk ${it.overallRisk}") },
+    ),
+)
+
+session.connect()
+
+// Send audio data
+session.sendAudio(audioBytes)
+
+// End session and get summary
+val summary = session.end()
+
+// Cleanup
+session.close()
+```
+
+### Credits Used
+
+All analysis result types include a `creditsUsed` field that indicates how many API credits were consumed:
+
+```kotlin
+val result = client.detectBullying("text to analyze")
+println("Credits used: ${result.creditsUsed}")
+```
+
+| Method | Credits |
+|--------|---------|
+| `detectBullying()` | 1 |
+| `detectUnsafe()` | 1 |
+| `detectGrooming()` | 1 per 10 messages |
+| `analyzeEmotions()` | 1 per 10 messages |
+| `getActionPlan()` | 2 |
+| `generateReport()` | 3 |
+| `analyzeVoice()` | 5 |
+| `analyzeImage()` | 3 |
+
 ---
 
 ## Tracking Fields

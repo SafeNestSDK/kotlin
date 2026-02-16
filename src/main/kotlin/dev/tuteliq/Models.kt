@@ -147,7 +147,8 @@ data class BullyingResult(
     @SerialName("risk_score") val riskScore: Double,
     @SerialName("recommended_action") val recommendedAction: String,
     @SerialName("external_id") val externalId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 /**
@@ -162,7 +163,8 @@ data class GroomingResult(
     @SerialName("risk_score") val riskScore: Double,
     @SerialName("recommended_action") val recommendedAction: String,
     @SerialName("external_id") val externalId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 /**
@@ -178,7 +180,8 @@ data class UnsafeResult(
     @SerialName("risk_score") val riskScore: Double,
     @SerialName("recommended_action") val recommendedAction: String,
     @SerialName("external_id") val externalId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 /**
@@ -192,7 +195,8 @@ data class AnalyzeResult(
     val unsafe: UnsafeResult?,
     val recommendedAction: String,
     val externalId: String?,
-    val metadata: Map<String, Any>?
+    val metadata: Map<String, Any>?,
+    val creditsUsed: Int? = null
 )
 
 /**
@@ -206,7 +210,8 @@ data class EmotionsResult(
     @SerialName("concerning_patterns") val concerningPatterns: List<String>,
     @SerialName("recommended_followup") val recommendedFollowup: String,
     @SerialName("external_id") val externalId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 /**
@@ -219,7 +224,8 @@ data class ActionPlanResult(
     val resources: List<String>,
     val urgency: String,
     @SerialName("external_id") val externalId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 /**
@@ -233,7 +239,8 @@ data class ReportResult(
     @SerialName("key_evidence") val keyEvidence: List<String>,
     @SerialName("recommended_next_steps") val recommendedNextSteps: List<String>,
     @SerialName("external_id") val externalId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 // =============================================================================
@@ -471,7 +478,8 @@ data class VoiceAnalysisResult(
     @SerialName("overall_severity") val overallSeverity: String? = null,
     @SerialName("external_id") val externalId: String? = null,
     @SerialName("customer_id") val customerId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 // =============================================================================
@@ -504,7 +512,8 @@ data class ImageAnalysisResult(
     @SerialName("overall_severity") val overallSeverity: String? = null,
     @SerialName("external_id") val externalId: String? = null,
     @SerialName("customer_id") val customerId: String? = null,
-    val metadata: JsonObject? = null
+    val metadata: JsonObject? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
 )
 
 // =============================================================================
