@@ -130,6 +130,31 @@ data class GenerateReportInput(
     val metadata: Map<String, Any>? = null
 )
 
+/**
+ * Input for fraud/safety extended detection.
+ */
+data class DetectionInput(
+    val content: String,
+    val context: AnalysisContext? = null,
+    val includeEvidence: Boolean = false,
+    val externalId: String? = null,
+    val customerId: String? = null,
+    val metadata: Map<String, Any?>? = null
+)
+
+/**
+ * Input for multi-endpoint analysis.
+ */
+data class AnalyseMultiInput(
+    val content: String,
+    val detections: List<Detection>,
+    val context: AnalysisContext? = null,
+    val includeEvidence: Boolean = false,
+    val externalId: String? = null,
+    val customerId: String? = null,
+    val metadata: Map<String, Any?>? = null
+)
+
 // =============================================================================
 // Result Types
 // =============================================================================
@@ -146,6 +171,8 @@ data class BullyingResult(
     val rationale: String,
     @SerialName("risk_score") val riskScore: Double,
     @SerialName("recommended_action") val recommendedAction: String,
+    val language: String? = null,
+    @SerialName("language_status") val languageStatus: String? = null,
     @SerialName("external_id") val externalId: String? = null,
     val metadata: JsonObject? = null,
     @SerialName("credits_used") val creditsUsed: Int? = null
@@ -162,6 +189,8 @@ data class GroomingResult(
     val rationale: String,
     @SerialName("risk_score") val riskScore: Double,
     @SerialName("recommended_action") val recommendedAction: String,
+    val language: String? = null,
+    @SerialName("language_status") val languageStatus: String? = null,
     @SerialName("external_id") val externalId: String? = null,
     val metadata: JsonObject? = null,
     @SerialName("credits_used") val creditsUsed: Int? = null
@@ -179,6 +208,8 @@ data class UnsafeResult(
     val rationale: String,
     @SerialName("risk_score") val riskScore: Double,
     @SerialName("recommended_action") val recommendedAction: String,
+    val language: String? = null,
+    @SerialName("language_status") val languageStatus: String? = null,
     @SerialName("external_id") val externalId: String? = null,
     val metadata: JsonObject? = null,
     @SerialName("credits_used") val creditsUsed: Int? = null
@@ -439,6 +470,122 @@ data class BreachListResult(
 @Serializable
 data class BreachResult(
     val breach: BreachRecord
+)
+
+// =============================================================================
+// Detection Results (Fraud / Safety Extended / Multi)
+// =============================================================================
+
+/**
+ * A detection category with tag, label, and confidence.
+ */
+@Serializable
+data class DetectionCategory(
+    val tag: String,
+    val label: String,
+    val confidence: Double
+)
+
+/**
+ * Evidence supporting a detection result.
+ */
+@Serializable
+data class DetectionEvidence(
+    val text: String,
+    val tactic: String,
+    val weight: Double
+)
+
+/**
+ * Age calibration applied to a detection.
+ */
+@Serializable
+data class AgeCalibration(
+    val applied: Boolean,
+    @SerialName("age_group") val ageGroup: String? = null,
+    val multiplier: Double? = null
+)
+
+/**
+ * Result of a single detection endpoint.
+ */
+@Serializable
+data class DetectionResult(
+    val endpoint: String,
+    val detected: Boolean,
+    val severity: Double,
+    val confidence: Double,
+    @SerialName("risk_score") val riskScore: Double,
+    val level: String,
+    val categories: List<DetectionCategory>,
+    @SerialName("recommended_action") val recommendedAction: String,
+    val rationale: String,
+    val language: String,
+    @SerialName("language_status") val languageStatus: String,
+    val evidence: List<DetectionEvidence>? = null,
+    @SerialName("age_calibration") val ageCalibration: AgeCalibration? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null,
+    @SerialName("processing_time_ms") val processingTimeMs: Double? = null,
+    @SerialName("external_id") val externalId: String? = null,
+    @SerialName("customer_id") val customerId: String? = null,
+    val metadata: JsonObject? = null
+)
+
+/**
+ * Summary of multi-endpoint analysis.
+ */
+@Serializable
+data class AnalyseMultiSummary(
+    @SerialName("total_endpoints") val totalEndpoints: Int,
+    @SerialName("detected_count") val detectedCount: Int,
+    @SerialName("highest_risk") val highestRisk: JsonObject,
+    @SerialName("overall_risk_level") val overallRiskLevel: String
+)
+
+/**
+ * Result of multi-endpoint analysis.
+ */
+@Serializable
+data class AnalyseMultiResult(
+    val results: List<DetectionResult>,
+    val summary: AnalyseMultiSummary,
+    @SerialName("cross_endpoint_modifier") val crossEndpointModifier: Double? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null,
+    @SerialName("external_id") val externalId: String? = null,
+    @SerialName("customer_id") val customerId: String? = null,
+    val metadata: JsonObject? = null
+)
+
+// =============================================================================
+// Video Analysis
+// =============================================================================
+
+/**
+ * A safety finding from video frame analysis.
+ */
+@Serializable
+data class VideoSafetyFinding(
+    @SerialName("frame_index") val frameIndex: Int,
+    val timestamp: Double,
+    val description: String,
+    val categories: List<String>,
+    val severity: Double
+)
+
+/**
+ * Result of video safety analysis.
+ */
+@Serializable
+data class VideoAnalysisResult(
+    @SerialName("file_id") val fileId: String? = null,
+    @SerialName("frames_analyzed") val framesAnalyzed: Int,
+    @SerialName("safety_findings") val safetyFindings: List<VideoSafetyFinding>,
+    @SerialName("overall_risk_score") val overallRiskScore: Double,
+    @SerialName("overall_severity") val overallSeverity: String,
+    @SerialName("credits_used") val creditsUsed: Int? = null,
+    @SerialName("external_id") val externalId: String? = null,
+    @SerialName("customer_id") val customerId: String? = null,
+    val metadata: JsonObject? = null
 )
 
 // =============================================================================

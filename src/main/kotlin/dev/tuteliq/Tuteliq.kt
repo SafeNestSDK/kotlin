@@ -639,6 +639,215 @@ class Tuteliq(
     }
 
     // =========================================================================
+    // Fraud Detection
+    // =========================================================================
+
+    /**
+     * Detect social engineering attempts.
+     */
+    suspend fun detectSocialEngineering(input: DetectionInput): DetectionResult =
+        request("/api/v1/fraud/social-engineering", buildDetectionBody(input))
+
+    /**
+     * Detect social engineering attempts.
+     */
+    suspend fun detectSocialEngineering(
+        content: String,
+        context: AnalysisContext? = null,
+        includeEvidence: Boolean = false,
+        externalId: String? = null,
+        customerId: String? = null,
+        metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectSocialEngineering(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    /**
+     * Detect app fraud patterns.
+     */
+    suspend fun detectAppFraud(input: DetectionInput): DetectionResult =
+        request("/api/v1/fraud/app-fraud", buildDetectionBody(input))
+
+    /**
+     * Detect app fraud patterns.
+     */
+    suspend fun detectAppFraud(
+        content: String,
+        context: AnalysisContext? = null,
+        includeEvidence: Boolean = false,
+        externalId: String? = null,
+        customerId: String? = null,
+        metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectAppFraud(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    /**
+     * Detect romance scam patterns.
+     */
+    suspend fun detectRomanceScam(input: DetectionInput): DetectionResult =
+        request("/api/v1/fraud/romance-scam", buildDetectionBody(input))
+
+    /**
+     * Detect romance scam patterns.
+     */
+    suspend fun detectRomanceScam(
+        content: String,
+        context: AnalysisContext? = null,
+        includeEvidence: Boolean = false,
+        externalId: String? = null,
+        customerId: String? = null,
+        metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectRomanceScam(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    /**
+     * Detect mule recruitment patterns.
+     */
+    suspend fun detectMuleRecruitment(input: DetectionInput): DetectionResult =
+        request("/api/v1/fraud/mule-recruitment", buildDetectionBody(input))
+
+    /**
+     * Detect mule recruitment patterns.
+     */
+    suspend fun detectMuleRecruitment(
+        content: String,
+        context: AnalysisContext? = null,
+        includeEvidence: Boolean = false,
+        externalId: String? = null,
+        customerId: String? = null,
+        metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectMuleRecruitment(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    // =========================================================================
+    // Safety Extended
+    // =========================================================================
+
+    /**
+     * Detect gambling harm patterns.
+     */
+    suspend fun detectGamblingHarm(input: DetectionInput): DetectionResult =
+        request("/api/v1/safety/gambling-harm", buildDetectionBody(input))
+
+    /**
+     * Detect gambling harm patterns.
+     */
+    suspend fun detectGamblingHarm(
+        content: String, context: AnalysisContext? = null, includeEvidence: Boolean = false,
+        externalId: String? = null, customerId: String? = null, metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectGamblingHarm(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    /**
+     * Detect coercive control patterns.
+     */
+    suspend fun detectCoerciveControl(input: DetectionInput): DetectionResult =
+        request("/api/v1/safety/coercive-control", buildDetectionBody(input))
+
+    /**
+     * Detect coercive control patterns.
+     */
+    suspend fun detectCoerciveControl(
+        content: String, context: AnalysisContext? = null, includeEvidence: Boolean = false,
+        externalId: String? = null, customerId: String? = null, metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectCoerciveControl(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    /**
+     * Detect vulnerability exploitation patterns.
+     */
+    suspend fun detectVulnerabilityExploitation(input: DetectionInput): DetectionResult =
+        request("/api/v1/safety/vulnerability-exploitation", buildDetectionBody(input))
+
+    /**
+     * Detect vulnerability exploitation patterns.
+     */
+    suspend fun detectVulnerabilityExploitation(
+        content: String, context: AnalysisContext? = null, includeEvidence: Boolean = false,
+        externalId: String? = null, customerId: String? = null, metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectVulnerabilityExploitation(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    /**
+     * Detect radicalisation patterns.
+     */
+    suspend fun detectRadicalisation(input: DetectionInput): DetectionResult =
+        request("/api/v1/safety/radicalisation", buildDetectionBody(input))
+
+    /**
+     * Detect radicalisation patterns.
+     */
+    suspend fun detectRadicalisation(
+        content: String, context: AnalysisContext? = null, includeEvidence: Boolean = false,
+        externalId: String? = null, customerId: String? = null, metadata: Map<String, Any?>? = null
+    ): DetectionResult = detectRadicalisation(DetectionInput(content, context, includeEvidence, externalId, customerId, metadata))
+
+    // =========================================================================
+    // Multi-Endpoint Analysis
+    // =========================================================================
+
+    /**
+     * Analyse content across multiple detection endpoints simultaneously.
+     *
+     * @param input AnalyseMultiInput with content and target detections.
+     * @return AnalyseMultiResult with combined results and summary.
+     */
+    suspend fun analyseMulti(input: AnalyseMultiInput): AnalyseMultiResult {
+        val body = buildJsonObject {
+            put("text", input.content)
+            putJsonArray("endpoints") { input.detections.forEach { add(it.endpoint) } }
+            putJsonObject("context") {
+                input.context?.let { ctx ->
+                    ctx.language?.let { put("language", it) }
+                    ctx.ageGroup?.let { put("age_group", it) }
+                    ctx.relationship?.let { put("relationship", it) }
+                }
+                put("platform", resolvePlatform(input.context?.platform))
+            }
+            if (input.includeEvidence) {
+                putJsonObject("options") { put("include_evidence", true) }
+            }
+            input.externalId?.let { put("external_id", it) }
+            input.customerId?.let { put("customer_id", it) }
+            input.metadata?.let { put("metadata", mapToJsonObject(it)) }
+        }
+        return request("/api/v1/analyse/multi", body)
+    }
+
+    // =========================================================================
+    // Video Analysis
+    // =========================================================================
+
+    /**
+     * Analyze video content for safety concerns.
+     *
+     * @param file Video file bytes.
+     * @param filename Name of the video file.
+     * @param fileId Optional file identifier.
+     * @param externalId Your identifier for correlation.
+     * @param customerId Customer identifier.
+     * @param metadata Custom metadata.
+     * @param ageGroup Age group context.
+     * @param platform Platform identifier.
+     * @return VideoAnalysisResult with safety findings.
+     */
+    suspend fun analyzeVideo(
+        file: ByteArray,
+        filename: String,
+        fileId: String? = null,
+        externalId: String? = null,
+        customerId: String? = null,
+        metadata: Map<String, Any?>? = null,
+        ageGroup: String? = null,
+        platform: String? = null
+    ): VideoAnalysisResult {
+        val data = multipartRequest("/api/v1/safety/video") {
+            append("file", file, Headers.build {
+                append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+            })
+            append("platform", resolvePlatform(platform))
+            fileId?.let { append("file_id", it) }
+            externalId?.let { append("external_id", it) }
+            customerId?.let { append("customer_id", it) }
+            metadata?.let { append("metadata", json.encodeToString(mapToJsonObject(it))) }
+            ageGroup?.let { append("age_group", it) }
+        }
+        return json.decodeFromJsonElement(data)
+    }
+
+    // =========================================================================
     // Webhooks
     // =========================================================================
 
@@ -911,6 +1120,24 @@ class Tuteliq(
             }
         }
         throw NetworkException("Max retries exceeded")
+    }
+
+    private fun buildDetectionBody(input: DetectionInput): JsonObject {
+        return buildJsonObject {
+            put("text", input.content)
+            putJsonObject("context") {
+                input.context?.let { ctx ->
+                    ctx.language?.let { put("language", it) }
+                    ctx.ageGroup?.let { put("age_group", it) }
+                    ctx.relationship?.let { put("relationship", it) }
+                }
+                put("platform", resolvePlatform(input.context?.platform))
+            }
+            if (input.includeEvidence) put("include_evidence", true)
+            input.externalId?.let { put("external_id", it) }
+            input.customerId?.let { put("customer_id", it) }
+            input.metadata?.let { put("metadata", mapToJsonObject(it)) }
+        }
     }
 
     private fun mapToJsonObject(map: Map<String, Any?>): JsonObject {
