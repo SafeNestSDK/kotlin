@@ -1,4 +1,4 @@
-package dev.tuteliq
+package ai.tuteliq
 
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*

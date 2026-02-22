@@ -1,4 +1,4 @@
-package dev.tuteliq
+package ai.tuteliq
 
 /**
  * Base exception for Tuteliq SDK errors.
