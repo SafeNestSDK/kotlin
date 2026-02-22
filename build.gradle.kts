@@ -6,7 +6,7 @@ plugins {
     signing
 }
 
-group = "dev.tuteliq"
+group = "ai.tuteliq"
 version = "2.2.1"
 
 repositories {
@@ -67,7 +67,7 @@ publishing {
                     developer {
                         id.set("tuteliq")
                         name.set("Tuteliq")
-                        email.set("sales@tuteliq.dev")
+                        email.set("sales@tuteliq.ai")
                     }
                 }
 
@@ -93,10 +93,18 @@ publishing {
 }
 
 signing {
-    useGpgCmd()
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    if (signingKey != null) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    } else {
+        useGpgCmd()
+    }
     sign(publishing.publications["mavenJava"])
 }
 
 tasks.withType<Sign> {
-    onlyIf { project.hasProperty("signing.gnupg.keyName") }
+    onlyIf {
+        project.hasProperty("signingKey") || project.hasProperty("signing.gnupg.keyName")
+    }
 }

@@ -1,4 +1,4 @@
-package dev.tuteliq
+package ai.tuteliq
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
