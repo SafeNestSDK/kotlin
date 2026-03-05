@@ -23,6 +23,8 @@ val result = client.detectUnsafe(text = "content to check", ageGroup = "13-15")
 - 16+ detection categories (KOSA compliant)
 - Age group calibration
 - Ktor-based HTTP client
+- Age Verification (Beta) — POST /v1/verification/age — 5 credits — Pro tier ($99/mo)+
+- Identity Verification (Beta) — POST /v1/verification/identity — 10 credits — Business tier ($349/mo)+
 
 ## Links
 - Website: https://tuteliq.ai
