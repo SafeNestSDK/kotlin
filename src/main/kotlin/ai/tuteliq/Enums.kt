@@ -128,3 +128,45 @@ enum class Tier {
     @SerialName("business") BUSINESS,
     @SerialName("enterprise") ENTERPRISE
 }
+
+/**
+ * Verification mode for age/identity verification.
+ */
+@Serializable
+enum class VerificationMode {
+    @SerialName("age") AGE,
+    @SerialName("identity") IDENTITY
+}
+
+/**
+ * Document types accepted for verification.
+ */
+@Serializable
+enum class DocumentType {
+    @SerialName("passport") PASSPORT,
+    @SerialName("id_card") ID_CARD,
+    @SerialName("drivers_license") DRIVERS_LICENSE
+}
+
+/**
+ * Verification result status.
+ */
+@Serializable
+enum class VerificationStatus {
+    @SerialName("verified") VERIFIED,
+    @SerialName("failed") FAILED,
+    @SerialName("needs_review") NEEDS_REVIEW
+}
+
+/**
+ * Verification session status.
+ */
+@Serializable
+enum class VerificationSessionStatus {
+    @SerialName("pending") PENDING,
+    @SerialName("in_progress") IN_PROGRESS,
+    @SerialName("completed") COMPLETED,
+    @SerialName("failed") FAILED,
+    @SerialName("expired") EXPIRED,
+    @SerialName("cancelled") CANCELLED
+}

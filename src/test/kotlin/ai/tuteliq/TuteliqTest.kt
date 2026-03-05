@@ -4,6 +4,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 
 class TuteliqTest {
 
@@ -196,5 +198,139 @@ class TuteliqTest {
         assertEquals(2, input.messages.size)
         assertEquals(14, input.childAge)
         assertEquals("bullying", input.incidentType)
+    }
+
+    // =========================================================================
+    // Verification Enums
+    // =========================================================================
+
+    @Test
+    fun `VerificationMode enum has correct values`() {
+        assertEquals("age", VerificationMode.AGE.name.lowercase())
+        assertEquals("identity", VerificationMode.IDENTITY.name.lowercase())
+    }
+
+    @Test
+    fun `DocumentType enum has correct values`() {
+        assertEquals("passport", DocumentType.PASSPORT.name.lowercase())
+        assertEquals("id_card", DocumentType.ID_CARD.name.lowercase())
+        assertEquals("drivers_license", DocumentType.DRIVERS_LICENSE.name.lowercase())
+    }
+
+    @Test
+    fun `VerificationStatus enum has correct values`() {
+        assertEquals("verified", VerificationStatus.VERIFIED.name.lowercase())
+        assertEquals("failed", VerificationStatus.FAILED.name.lowercase())
+        assertEquals("needs_review", VerificationStatus.NEEDS_REVIEW.name.lowercase())
+    }
+
+    @Test
+    fun `VerificationSessionStatus enum has correct values`() {
+        assertEquals("pending", VerificationSessionStatus.PENDING.name.lowercase())
+        assertEquals("in_progress", VerificationSessionStatus.IN_PROGRESS.name.lowercase())
+        assertEquals("completed", VerificationSessionStatus.COMPLETED.name.lowercase())
+        assertEquals("failed", VerificationSessionStatus.FAILED.name.lowercase())
+        assertEquals("expired", VerificationSessionStatus.EXPIRED.name.lowercase())
+        assertEquals("cancelled", VerificationSessionStatus.CANCELLED.name.lowercase())
+    }
+
+    // =========================================================================
+    // Verification Models
+    // =========================================================================
+
+    @Test
+    fun `CreateVerificationSessionInput creation works`() {
+        val input = CreateVerificationSessionInput(
+            mode = VerificationMode.AGE,
+            documentType = DocumentType.PASSPORT
+        )
+        assertEquals(VerificationMode.AGE, input.mode)
+        assertEquals(DocumentType.PASSPORT, input.documentType)
+    }
+
+    @Test
+    fun `VerificationSession deserialization works`() {
+        val jsonStr = """
+            {
+                "session_id": "vs_abc123",
+                "mobile_url": "https://verify.tuteliq.ai/session/vs_abc123",
+                "expires_at": "2026-03-05T12:00:00Z",
+                "mode": "age"
+            }
+        """.trimIndent()
+        val json = Json { ignoreUnknownKeys = true }
+        val session = json.decodeFromString<VerificationSession>(jsonStr)
+
+        assertEquals("vs_abc123", session.sessionId)
+        assertEquals("https://verify.tuteliq.ai/session/vs_abc123", session.url)
+        assertEquals("2026-03-05T12:00:00Z", session.expiresAt)
+        assertEquals(VerificationMode.AGE, session.mode)
+    }
+
+    @Test
+    fun `AgeVerificationResult deserialization works`() {
+        val jsonStr = """
+            {
+                "verification_id": "vrf_123",
+                "status": "verified",
+                "age_bracket": "18-25",
+                "is_minor": false,
+                "credits_used": 10,
+                "liveness": {"valid": true},
+                "face_match": {"matched": true, "confidence": 0.95, "distance": 0.12}
+            }
+        """.trimIndent()
+        val json = Json { ignoreUnknownKeys = true }
+        val result = json.decodeFromString<AgeVerificationResult>(jsonStr)
+
+        assertEquals("vrf_123", result.verificationId)
+        assertEquals(VerificationStatus.VERIFIED, result.status)
+        assertEquals("18-25", result.ageBracket)
+        assertEquals(false, result.isMinor)
+        assertEquals(10, result.creditsUsed)
+        assertEquals(true, result.liveness?.valid)
+        assertEquals(true, result.faceMatch?.matched)
+        assertEquals(0.95, result.faceMatch?.confidence)
+    }
+
+    @Test
+    fun `IdentityVerificationResult deserialization works`() {
+        val jsonStr = """
+            {
+                "verification_id": "vrf_456",
+                "status": "verified",
+                "full_name": "John Doe",
+                "date_of_birth": "1990-01-15",
+                "document_type": "passport",
+                "country_code": "US",
+                "credits_used": 15
+            }
+        """.trimIndent()
+        val json = Json { ignoreUnknownKeys = true }
+        val result = json.decodeFromString<IdentityVerificationResult>(jsonStr)
+
+        assertEquals("vrf_456", result.verificationId)
+        assertEquals(VerificationStatus.VERIFIED, result.status)
+        assertEquals("John Doe", result.fullName)
+        assertEquals("1990-01-15", result.dateOfBirth)
+        assertEquals("passport", result.documentType)
+        assertEquals("US", result.countryCode)
+    }
+
+    @Test
+    fun `VerificationSessionResult deserialization works`() {
+        val jsonStr = """
+            {
+                "session_id": "vs_abc123",
+                "status": "completed",
+                "created_at": "2026-03-05T10:00:00Z",
+                "expires_at": "2026-03-05T12:00:00Z"
+            }
+        """.trimIndent()
+        val json = Json { ignoreUnknownKeys = true }
+        val result = json.decodeFromString<VerificationSessionResult>(jsonStr)
+
+        assertEquals("vs_abc123", result.sessionId)
+        assertEquals(VerificationSessionStatus.COMPLETED, result.status)
     }
 }
