@@ -848,6 +848,64 @@ class Tuteliq(
     }
 
     // =========================================================================
+    // Verification
+    // =========================================================================
+
+    /**
+     * Create a verification session.
+     *
+     * @param input Session configuration with mode and optional document type.
+     * @return VerificationSession with URL to redirect user.
+     */
+    suspend fun createVerificationSession(input: CreateVerificationSessionInput): VerificationSession {
+        val body = buildJsonObject {
+            put("mode", input.mode.name.lowercase())
+            input.documentType?.let { put("document_type", it.name.lowercase()) }
+        }
+        return request("/api/v1/verify/session", body)
+    }
+
+    /**
+     * Get the current status of a verification session.
+     *
+     * @param id The session ID from createVerificationSession.
+     * @return VerificationSessionResult with current status.
+     */
+    suspend fun getVerificationSession(id: String): VerificationSessionResult {
+        return request("GET", "/api/v1/verify/session/$id")
+    }
+
+    /**
+     * Cancel a verification session.
+     *
+     * @param id The session ID to cancel.
+     * @return CancelVerificationSessionResult with confirmation message.
+     */
+    suspend fun cancelVerificationSession(id: String): CancelVerificationSessionResult {
+        return request("DELETE", "/api/v1/verify/session/$id")
+    }
+
+    /**
+     * Retrieve a past age verification result.
+     *
+     * @param id The verification ID.
+     * @return VerificationRetrieveResult with verification details.
+     */
+    suspend fun getAgeVerification(id: String): VerificationRetrieveResult {
+        return request("GET", "/api/v1/verify/age/$id")
+    }
+
+    /**
+     * Retrieve a past identity verification result.
+     *
+     * @param id The verification ID.
+     * @return IdentityRetrieveResult with verification details.
+     */
+    suspend fun getIdentityVerification(id: String): IdentityRetrieveResult {
+        return request("GET", "/api/v1/verify/identity/$id")
+    }
+
+    // =========================================================================
     // Webhooks
     // =========================================================================
 

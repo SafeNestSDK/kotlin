@@ -838,3 +838,128 @@ data class UsageMonthlyResult(
     val recommendations: JsonObject? = null,
     val links: JsonObject
 )
+
+// =============================================================================
+// Verification
+// =============================================================================
+
+/**
+ * Input for creating a verification session.
+ */
+data class CreateVerificationSessionInput(
+    val mode: VerificationMode,
+    val documentType: DocumentType? = null
+)
+
+/**
+ * Verification session details.
+ * The `url` property maps from the API's `mobile_url` field.
+ */
+@Serializable
+data class VerificationSession(
+    @SerialName("session_id") val sessionId: String,
+    @SerialName("mobile_url") val url: String,
+    @SerialName("expires_at") val expiresAt: String,
+    val mode: VerificationMode,
+    @SerialName("verification_mode") val verificationMode: String? = null
+)
+
+/**
+ * Face match result from verification.
+ */
+@Serializable
+data class FaceMatchResult(
+    val matched: Boolean,
+    val confidence: Double,
+    val distance: Double? = null
+)
+
+/**
+ * Liveness check result from verification.
+ */
+@Serializable
+data class LivenessResult(
+    val valid: Boolean,
+    val reason: String? = null
+)
+
+/**
+ * Result of age verification.
+ */
+@Serializable
+data class AgeVerificationResult(
+    @SerialName("verification_id") val verificationId: String,
+    val status: VerificationStatus,
+    @SerialName("age_bracket") val ageBracket: String? = null,
+    @SerialName("is_minor") val isMinor: Boolean? = null,
+    val liveness: LivenessResult? = null,
+    @SerialName("face_match") val faceMatch: FaceMatchResult? = null,
+    @SerialName("failure_reasons") val failureReasons: List<String>? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
+)
+
+/**
+ * Result of identity verification.
+ */
+@Serializable
+data class IdentityVerificationResult(
+    @SerialName("verification_id") val verificationId: String,
+    val status: VerificationStatus,
+    @SerialName("full_name") val fullName: String? = null,
+    @SerialName("date_of_birth") val dateOfBirth: String? = null,
+    @SerialName("document_type") val documentType: String? = null,
+    @SerialName("country_code") val countryCode: String? = null,
+    val liveness: LivenessResult? = null,
+    @SerialName("face_match") val faceMatch: FaceMatchResult? = null,
+    @SerialName("credits_used") val creditsUsed: Int? = null
+)
+
+/**
+ * Result of polling a verification session.
+ */
+@Serializable
+data class VerificationSessionResult(
+    @SerialName("session_id") val sessionId: String,
+    val status: VerificationSessionStatus,
+    val result: JsonObject? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("expires_at") val expiresAt: String? = null
+)
+
+/**
+ * Result of retrieving an age verification by ID.
+ */
+@Serializable
+data class VerificationRetrieveResult(
+    @SerialName("verification_id") val verificationId: String,
+    val status: VerificationStatus,
+    @SerialName("age_bracket") val ageBracket: String? = null,
+    @SerialName("is_minor") val isMinor: Boolean? = null,
+    val liveness: LivenessResult? = null,
+    @SerialName("face_match") val faceMatch: FaceMatchResult? = null,
+    @SerialName("created_at") val createdAt: String? = null
+)
+
+/**
+ * Result of retrieving an identity verification by ID.
+ */
+@Serializable
+data class IdentityRetrieveResult(
+    @SerialName("verification_id") val verificationId: String,
+    val status: VerificationStatus,
+    @SerialName("full_name") val fullName: String? = null,
+    @SerialName("date_of_birth") val dateOfBirth: String? = null,
+    @SerialName("document_type") val documentType: String? = null,
+    @SerialName("country_code") val countryCode: String? = null,
+    val liveness: LivenessResult? = null,
+    @SerialName("face_match") val faceMatch: FaceMatchResult? = null,
+    @SerialName("created_at") val createdAt: String? = null
+)
+
+/**
+ * Result of cancelling a verification session.
+ */
+@Serializable
+data class CancelVerificationSessionResult(
+    val message: String
+)
