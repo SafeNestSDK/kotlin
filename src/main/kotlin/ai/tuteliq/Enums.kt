@@ -118,6 +118,21 @@ enum class Detection(@Suppress("unused") val endpoint: String) {
 }
 
 /**
+ * Detection endpoints available for document analysis.
+ */
+@Serializable
+enum class DocumentEndpointName(@Suppress("unused") val endpoint: String) {
+    @SerialName("unsafe") UNSAFE("unsafe"),
+    @SerialName("bullying") BULLYING("bullying"),
+    @SerialName("grooming") GROOMING("grooming"),
+    @SerialName("social-engineering") SOCIAL_ENGINEERING("social-engineering"),
+    @SerialName("coercive-control") COERCIVE_CONTROL("coercive-control"),
+    @SerialName("radicalisation") RADICALISATION("radicalisation"),
+    @SerialName("romance-scam") ROMANCE_SCAM("romance-scam"),
+    @SerialName("mule-recruitment") MULE_RECRUITMENT("mule-recruitment")
+}
+
+/**
  * Subscription tier levels.
  */
 @Serializable

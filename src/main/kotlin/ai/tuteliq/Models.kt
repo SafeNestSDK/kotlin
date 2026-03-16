@@ -677,6 +677,106 @@ data class ImageAnalysisResult(
 )
 
 // =============================================================================
+// Document Analysis
+// =============================================================================
+
+/**
+ * Input for document (PDF) analysis.
+ */
+data class AnalyzeDocumentInput(
+    val file: ByteArray,
+    val filename: String,
+    val endpoints: List<String>? = null,
+    val fileId: String? = null,
+    val ageGroup: String? = null,
+    val language: String? = null,
+    val platform: String? = null,
+    val supportThreshold: String? = null,
+    val externalId: String? = null,
+    val customerId: String? = null,
+    val metadata: Map<String, Any?>? = null
+)
+
+/**
+ * Summary of text extraction methods used across document pages.
+ */
+@Serializable
+data class DocumentExtractionSummary(
+    @SerialName("text_layer_pages") val textLayerPages: Int,
+    @SerialName("ocr_pages") val ocrPages: Int,
+    @SerialName("failed_pages") val failedPages: Int,
+    @SerialName("average_ocr_confidence") val averageOcrConfidence: Double
+)
+
+/**
+ * Detection result for a single endpoint on a single page.
+ */
+@Serializable
+data class DocumentPageEndpointResult(
+    val endpoint: String,
+    val detected: Boolean,
+    val severity: Double,
+    val confidence: Double,
+    @SerialName("risk_score") val riskScore: Double,
+    val level: String,
+    val categories: List<DetectionCategory>,
+    val evidence: List<DetectionEvidence>,
+    @SerialName("recommended_action") val recommendedAction: String,
+    val rationale: String,
+    @SerialName("detected_language") val detectedLanguage: String? = null
+)
+
+/**
+ * Analysis result for a single document page.
+ */
+@Serializable
+data class DocumentPageResult(
+    @SerialName("page_number") val pageNumber: Int,
+    @SerialName("text_preview") val textPreview: String,
+    @SerialName("extraction_method") val extractionMethod: String,
+    @SerialName("ocr_confidence") val ocrConfidence: Double? = null,
+    val results: List<DocumentPageEndpointResult>,
+    @SerialName("page_risk_score") val pageRiskScore: Double,
+    @SerialName("page_severity") val pageSeverity: String
+)
+
+/**
+ * A page flagged with risk score >= 0.3.
+ */
+@Serializable
+data class DocumentFlaggedPage(
+    @SerialName("page_number") val pageNumber: Int,
+    @SerialName("risk_score") val riskScore: Double,
+    val severity: String,
+    @SerialName("detected_endpoints") val detectedEndpoints: List<String>
+)
+
+/**
+ * Result of document safety analysis.
+ */
+@Serializable
+data class DocumentAnalysisResult(
+    @SerialName("file_id") val fileId: String? = null,
+    @SerialName("document_hash") val documentHash: String,
+    @SerialName("total_pages") val totalPages: Int,
+    @SerialName("pages_analyzed") val pagesAnalyzed: Int,
+    @SerialName("extraction_summary") val extractionSummary: DocumentExtractionSummary,
+    @SerialName("page_results") val pageResults: List<DocumentPageResult>,
+    @SerialName("overall_risk_score") val overallRiskScore: Double,
+    @SerialName("overall_severity") val overallSeverity: String,
+    @SerialName("detected_endpoints") val detectedEndpoints: List<String>,
+    @SerialName("flagged_pages") val flaggedPages: List<DocumentFlaggedPage>,
+    @SerialName("credits_used") val creditsUsed: Int,
+    @SerialName("processing_time_ms") val processingTimeMs: Double,
+    val language: String? = null,
+    @SerialName("language_status") val languageStatus: String? = null,
+    val support: JsonObject? = null,
+    @SerialName("external_id") val externalId: String? = null,
+    @SerialName("customer_id") val customerId: String? = null,
+    val metadata: JsonObject? = null
+)
+
+// =============================================================================
 // Webhooks
 // =============================================================================
 

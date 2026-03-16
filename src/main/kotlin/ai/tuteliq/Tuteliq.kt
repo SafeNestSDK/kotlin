@@ -848,6 +848,81 @@ class Tuteliq(
     }
 
     // =========================================================================
+    // Document Analysis
+    // =========================================================================
+
+    /**
+     * Analyze a PDF document for safety threats across multiple detection endpoints.
+     *
+     * Each page is individually analyzed against the requested endpoints. Results
+     * include per-page findings, overall risk assessment, and flagged pages.
+     *
+     * @param input AnalyzeDocumentInput with file bytes and options.
+     * @return DocumentAnalysisResult with per-page and overall findings.
+     */
+    suspend fun analyzeDocument(input: AnalyzeDocumentInput): DocumentAnalysisResult {
+        val data = multipartRequest("/api/v1/safety/document") {
+            append("file", input.file, Headers.build {
+                append(HttpHeaders.ContentDisposition, "filename=\"${input.filename}\"")
+            })
+            append("platform", resolvePlatform(input.platform))
+            input.endpoints?.let { append("endpoints", json.encodeToString(it)) }
+            input.fileId?.let { append("file_id", it) }
+            input.ageGroup?.let { append("age_group", it) }
+            input.language?.let { append("language", it) }
+            input.supportThreshold?.let { append("support_threshold", it) }
+            input.externalId?.let { append("external_id", it) }
+            input.customerId?.let { append("customer_id", it) }
+            input.metadata?.let { append("metadata", json.encodeToString(mapToJsonObject(it))) }
+        }
+        return json.decodeFromJsonElement(data)
+    }
+
+    /**
+     * Analyze a PDF document for safety threats across multiple detection endpoints.
+     *
+     * @param file PDF file bytes.
+     * @param filename Name of the PDF file.
+     * @param endpoints Detection endpoints to run on each page.
+     * @param fileId Optional file identifier for correlation.
+     * @param ageGroup Age group context for calibrated analysis.
+     * @param language Language hint (ISO 639-1).
+     * @param platform Platform identifier.
+     * @param supportThreshold Minimum severity to include crisis helplines.
+     * @param externalId Your identifier for correlation.
+     * @param customerId Customer identifier.
+     * @param metadata Custom metadata.
+     * @return DocumentAnalysisResult with per-page and overall findings.
+     */
+    suspend fun analyzeDocument(
+        file: ByteArray,
+        filename: String,
+        endpoints: List<String>? = null,
+        fileId: String? = null,
+        ageGroup: String? = null,
+        language: String? = null,
+        platform: String? = null,
+        supportThreshold: String? = null,
+        externalId: String? = null,
+        customerId: String? = null,
+        metadata: Map<String, Any?>? = null
+    ): DocumentAnalysisResult = analyzeDocument(
+        AnalyzeDocumentInput(
+            file = file,
+            filename = filename,
+            endpoints = endpoints,
+            fileId = fileId,
+            ageGroup = ageGroup,
+            language = language,
+            platform = platform,
+            supportThreshold = supportThreshold,
+            externalId = externalId,
+            customerId = customerId,
+            metadata = metadata
+        )
+    )
+
+    // =========================================================================
     // Verification
     // =========================================================================
 

@@ -30,7 +30,7 @@
 
 ```kotlin
 dependencies {
-    implementation("ai.tuteliq:tuteliq:2.2.4")
+    implementation("ai.tuteliq:tuteliq:2.4.0")
 }
 ```
 
@@ -38,7 +38,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'ai.tuteliq:tuteliq:2.2.4'
+    implementation 'ai.tuteliq:tuteliq:2.4.0'
 }
 ```
 
@@ -48,7 +48,7 @@ dependencies {
 <dependency>
     <groupId>ai.tuteliq</groupId>
     <artifactId>tuteliq</artifactId>
-    <version>2.2.4</version>
+    <version>2.4.0</version>
 </dependency>
 ```
 
@@ -276,6 +276,50 @@ val summary = session.end()
 session.close()
 ```
 
+### Document Analysis
+
+Analyze PDF documents for safety threats across multiple detection endpoints. Each page is individually analyzed with per-page results, overall risk scoring, and flagged pages.
+
+```kotlin
+import java.io.File
+
+val pdfBytes = File("report.pdf").readBytes()
+
+// Using the input object
+val result = client.analyzeDocument(
+    AnalyzeDocumentInput(
+        file = pdfBytes,
+        filename = "report.pdf",
+        endpoints = listOf("unsafe", "coercive-control", "radicalisation"),
+        ageGroup = "13-15",
+        supportThreshold = "high",
+    )
+)
+
+// Or using named parameters directly
+val result = client.analyzeDocument(
+    file = pdfBytes,
+    filename = "report.pdf",
+    endpoints = listOf("unsafe", "coercive-control", "radicalisation"),
+)
+
+println("Risk: ${result.overallSeverity}")              // "high"
+println("Flagged pages: ${result.flaggedPages.size}")    // 2
+println("Credits: ${result.creditsUsed}")                // varies by pages/endpoints
+
+// Inspect per-page results
+result.pageResults.forEach { page ->
+    println("Page ${page.pageNumber}: ${page.pageSeverity} (${page.extractionMethod})")
+    page.results.forEach { r ->
+        if (r.detected) {
+            println("  ${r.endpoint}: risk=${r.riskScore}, ${r.rationale}")
+        }
+    }
+}
+```
+
+Available endpoints: `unsafe`, `bullying`, `grooming`, `social-engineering`, `coercive-control`, `radicalisation`, `romance-scam`, `mule-recruitment`.
+
 ### Credits Used
 
 All analysis result types include a `creditsUsed` field that indicates how many API credits were consumed:
@@ -295,6 +339,7 @@ println("Credits used: ${result.creditsUsed}")
 | `generateReport()` | 3 |
 | `analyzeVoice()` | 5 |
 | `analyzeImage()` | 3 |
+| `analyzeDocument()` | varies (pages x endpoints) |
 | `verifyAge()` | 5 |
 | `verifyIdentity()` | 10 |
 
